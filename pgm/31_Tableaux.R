@@ -45,18 +45,6 @@ adultes %>%
 
 cat(texte, sep="\n", file=c("sorties/limitations_par_age_qqual_pcs_sexe_ensemble.csv"))
 
-limitations_par <- function(matable, ...) {
-  matable %>% 
-    filter(age >= 30 & !is.na(PCS)) %>% 
-    group_by(...) %>% 
-    summarise(
-      proportion = weighted.mean(limite, PB040, na.rm=TRUE),
-      marge_erreur_95pct = errorprop(limite, PB040),
-      n = n()
-    ) %>% 
-    mutate(proportion = ifelse(n<=10, NA_real_, proportion)) 
-}
-
 list(
   adultes %>% limitations_par(),
   adultes %>% limitations_par(Sexe),

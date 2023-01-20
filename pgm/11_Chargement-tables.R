@@ -6,11 +6,14 @@ individus %>%
   count(DIM, wt=PB040) %>% 
   mutate(n = 100*n/sum(n))
 
-labels_cat <- paste(c(16, 25, 50, 55+5*(0:6)),
-                c(25, 50, 55+5*(0:6), Inf), sep="-")
+labellize <- function(x) {
+  l <- length(x)
+  paste(x[-l], x[-1]-1, sep="-")
+}
 
-labels_qqual <- paste(c(16, 20+5*(0:13)),
-                    c(20+5*(0:13), Inf), sep="-")
+breaks_cat <- c(16, 25, 50, 55+5*(0:6), Inf)
+breaks_qqual <- c(16, 20+5*(0:13), Inf)
+breaks_qqual_regroupe <- c(16, 30, 40+5*(0:7), Inf)
 
 adultes <- filter(individus, age >= 16) %>% 
   mutate(
@@ -20,8 +23,8 @@ adultes <- filter(individus, age >= 16) %>%
     `3` = "3 - Non, pas limité(e) du tout"
   )),
   limite = DIM == 1 | DIM == 2,
-  age_cat = cut(age, breaks = c(16, 25, 50, 55+5*(0:6), Inf), labels=labels_cat, right=FALSE),
-  age_qqual = cut(age, breaks = c(16, 20+5*(0:13), Inf), labels=labels_qqual, right=FALSE),
+  age_cat = cut(age, breaks = breaks_cat, labels=labellize(breaks_cat), right=FALSE),
+  age_qqual = cut(age, breaks = breaks_qqual_regroupe, labels=labellize(breaks_qqual_regroupe), right=FALSE),
   CS = substr(CS24, 1, 1),
   CS = ifelse(CS == 7, substr(CS_ANTE, 1, 1), CS),
   PCS = factor(recode(
