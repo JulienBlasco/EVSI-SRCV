@@ -49,7 +49,7 @@ texte_regroupe <-
 # - La prévalence des limitations est calculée par tranche d'âge quinquennale,
 # puis imputée par interpolation linéaire entre les âges médians des tranches."
 
-cat(texte_regroupe, file=c("sorties/limitations_par_age_pcs_sexe_regroupe.csv"))
+cat(texte_regroupe, file=c("sorties/limitations_par_age_pcs_sexe_regroupe.csv"), sep="\n")
 
 limitations_imputees %>% 
   mutate(Sexe = fct_explicit_na(Sexe, "Ensemble")) %>% 
