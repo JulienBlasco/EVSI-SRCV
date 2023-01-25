@@ -1,11 +1,14 @@
 limitations <- 
   bind_rows(
     adultes %>% 
+      filter(CS %in% 1:2) %>% 
+      limitations_par(PCS, age_qqual),
+    adultes %>% 
       filter(CS %in% 3:7) %>% 
       limitations_par(Sexe, PCS, age_qqual),
     adultes %>% 
-      filter(CS %in% 1:2) %>% 
-      limitations_par(PCS, age_qqual)
+      limitations_par(Sexe, age_qqual) %>% 
+      mutate(PCS = "Ensemble")
   )
 
 limitations_imputees <- 
