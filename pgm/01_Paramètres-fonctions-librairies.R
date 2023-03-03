@@ -11,8 +11,6 @@ confinterval <- function(x, w = rep(1, length(x))) {
   list(ymin = estim-error, ymax = estim+error)
 }
 
-# chemin des tables
-chemin_tables <- Sys.getenv("chemin_tables")
 
 # Calcul des limitations par caractéristiques croisées
 # 

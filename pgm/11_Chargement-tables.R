@@ -1,8 +1,17 @@
-individus <- fread(paste0(chemin_tables, "INDIVIDUS18_DIFF.csv"))
-#menages <- fread(paste0(chemin_tables, "MENAGES18_DIFF.csv"))
+variables_a_retirer = c("proploca")
+
+individus <- list(
+  `2017` = "INDIVIDUS17_DIFF",
+  `2018` = "INDIVIDUS18_DIFF",
+  `2016` = "individus16_diff"
+) %>% 
+  map(~haven::read_dta(paste0("data/", ., ".dta"))) %>% 
+  map(select, -all_of(variables_a_retirer)) %>% 
+  bind_rows(.id="AENQ") %>% 
+  rename_with(toupper)
 
 individus %>% 
-  filter(age >= 16) %>% 
+  filter(AGE >= 16) %>% 
   count(DIM, wt=PB040) %>% 
   mutate(n = 100*n/sum(n))
 
@@ -15,7 +24,7 @@ breaks_cat <- c(16, 25, 50, 55+5*(0:6), Inf)
 breaks_qqual <- c(16, 20+5*(0:13), Inf)
 breaks_qqual_regroupe <- c(16, 30, 40+5*(0:7), Inf)
 
-adultes <- filter(individus, age >= 16) %>% 
+adultes <- filter(individus, AGE >= 16) %>% 
   mutate(
     limitations = factor(recode(
     DIM, `1` = "1 - Oui, fortement limité(e)",
@@ -23,8 +32,8 @@ adultes <- filter(individus, age >= 16) %>%
     `3` = "3 - Non, pas limité(e) du tout"
   )),
   limite = DIM == 1 | DIM == 2,
-  age_cat = cut(age, breaks = breaks_cat, labels=labellize(breaks_cat), right=FALSE),
-  age_qqual = cut(age, breaks = breaks_qqual_regroupe, labels=labellize(breaks_qqual_regroupe), right=FALSE),
+  age_cat = cut(AGE, breaks = breaks_cat, labels=labellize(breaks_cat), right=FALSE),
+  age_qqual = cut(AGE, breaks = breaks_qqual_regroupe, labels=labellize(breaks_qqual_regroupe), right=FALSE),
   CS = substr(CS24, 1, 1),
   CS = ifelse(CS == 7, substr(CS_ANTE, 1, 1), CS),
   PCS = factor(recode(
