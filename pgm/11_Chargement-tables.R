@@ -47,6 +47,7 @@ adultes <- filter(individus, AGE >= 16) %>%
     `7` = "7 - Retraités",
     `8` = "8 - Inactifs"
   )),
-  Sexe = fct_recode(factor(SEXE), Hommes = "1", Femmes = "2")
+  Sexe = fct_recode(factor(SEXE), Hommes = "1", Femmes = "2"),
+  retraite = SITUA == 5
   )
 
