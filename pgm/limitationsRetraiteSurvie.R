@@ -3,7 +3,7 @@ library(readr)
 `%notin%` <- Negate(`%in%`)
 
 # Ici définir le dossier de travail
-#setwd("Documents/ENS/Économie/Retraites/EVSI")
+#setwd("")
 
 limitationsRetraite <- read_delim("limitations_retraite1303.csv", 
                                    delim = ";", escape_double = FALSE, locale = locale(decimal_mark = ","), 
