@@ -34,6 +34,7 @@ adultes <- filter(individus, AGE >= 16) %>%
   limite = DIM == 1 | DIM == 2,
   age_cat = cut(AGE, breaks = breaks_cat, labels=labellize(breaks_cat), right=FALSE),
   age_qqual = cut(AGE, breaks = breaks_qqual_regroupe, labels=labellize(breaks_qqual_regroupe), right=FALSE),
+  age_qqual_nonregroupe = cut(AGE, breaks = breaks_qqual, labels=labellize(breaks_qqual), right=FALSE),
   CS = substr(CS24, 1, 1),
   CS = ifelse(CS == 7, substr(CS_ANTE, 1, 1), CS),
   PCS = factor(recode(
