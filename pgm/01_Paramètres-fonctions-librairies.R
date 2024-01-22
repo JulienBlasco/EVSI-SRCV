@@ -29,3 +29,21 @@ limitations_par <- function(matable, ..., censure=TRUE) {
       mutate(proportion = ifelse(n<=10, NA_real_, proportion)) 
   } else tableau
 }
+
+# Calcul des limitations par caractéristiques croisées
+# 
+limitations_et_retraite_par <- function(matable, ..., censure=TRUE) {
+  tableau <- matable %>% 
+    filter(age >= 30 & !is.na(PCS)) %>% 
+    group_by(...) %>% 
+    summarise(
+      proportion = weighted.mean(limite, PB040, na.rm=TRUE),
+      marge_erreur_95pct = errorprop(limite, PB040),
+      n = n(),
+      age_median = Hmisc::wtd.quantile(age, PB040, 0.5)
+    )
+  if (censure) {
+    tableau %>% 
+      mutate(proportion = ifelse(n<=10, NA_real_, proportion)) 
+  } else tableau
+}
