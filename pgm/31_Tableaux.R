@@ -28,7 +28,7 @@ cat(texte, sep="\n", file=c("sorties/limitations_par_age_qqual_pcs_sexe.csv"))
 # Sans les ensembles
 
 adultes %>% 
-  filter(age >= 30 & !is.na(PCS)) %>% 
+  filter(AGE >= 30 & !is.na(PCS)) %>% 
   group_by(Sexe, PCS, age_qqual) %>% 
   summarise(
     proportion = weighted.mean(limite, PB040, na.rm=TRUE),

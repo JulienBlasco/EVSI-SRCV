@@ -16,13 +16,13 @@ confinterval <- function(x, w = rep(1, length(x))) {
 # 
 limitations_par <- function(matable, ..., censure=TRUE) {
   tableau <- matable %>% 
-    filter(age >= 30 & !is.na(PCS)) %>% 
+    filter(AGE >= 30 & !is.na(PCS)) %>% 
     group_by(...) %>% 
     summarise(
       proportion = weighted.mean(limite, PB040, na.rm=TRUE),
       marge_erreur_95pct = errorprop(limite, PB040),
       n = n(),
-      age_median = Hmisc::wtd.quantile(age, PB040, 0.5)
+      age_median = Hmisc::wtd.quantile(AGE, PB040, 0.5)
     )
   if (censure) {
     tableau %>% 

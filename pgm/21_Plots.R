@@ -21,7 +21,7 @@ adultes %>%
 # Limitations par PCS et âge
 
 adultes %>% 
-  filter(CS != 8 & age >= 30) %>% 
+  filter(CS != 8 & AGE >= 30) %>% 
   group_by(PCS, age_qqual) %>% 
   count(limitations, wt=PB040) %>% 
   drop_na() %>% 

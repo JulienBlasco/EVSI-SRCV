@@ -1,4 +1,4 @@
-variables_a_retirer = c("proploca")
+variables_a_retirer = c("PROPLOCA")
 
 individus <- list(
   `2017` = "INDIVIDUS17_DIFF",
@@ -6,9 +6,9 @@ individus <- list(
   `2016` = "individus16_diff"
 ) %>% 
   map(~haven::read_dta(paste0("data/", ., ".dta"))) %>% 
+  map(rename_with, toupper) %>% 
   map(select, -all_of(variables_a_retirer)) %>% 
-  bind_rows(.id="AENQ") %>% 
-  rename_with(toupper)
+  bind_rows(.id="AENQ")
 
 individus %>% 
   filter(AGE >= 16) %>% 
@@ -46,7 +46,8 @@ adultes <- filter(individus, AGE >= 16) %>%
     `5` = "5 - Employés",
     `6` = "6 - Ouvriers",
     `7` = "7 - Retraités",
-    `8` = "8 - Inactifs"
+    `8` = "8 - Inactifs",
+    .default = NA_character_
   )),
   Sexe = fct_recode(factor(SEXE), Hommes = "1", Femmes = "2"),
   retraite = SITUA == 5
