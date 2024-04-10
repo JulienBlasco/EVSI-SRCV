@@ -53,3 +53,5 @@ adultes <- filter(individus, AGE >= 16) %>%
   retraite = SITUA == 5
   )
 
+write_fst(adultes, "interm/adultes.fst")
+
