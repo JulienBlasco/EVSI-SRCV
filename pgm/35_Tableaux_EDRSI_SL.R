@@ -34,8 +34,8 @@ texte_limitretraites <-
 # de 30 à 75 ans. Les taux de la tranche d'âge 'Plus de 75 ans' sont attribués à l'âge médian.
 # Au-delà, les taux sont constants. Entre 75 et l'âge médian de la tranche supérieure, interpolation linéaire."
 
-cat(texte_limitretraites, file=c("sorties/limitations_retraite2.csv"), sep="\n")
+cat(texte_limitretraites, file=c("sorties/limitations_retraite_SL.csv"), sep="\n")
 
-write_csv2(limitretraites_impute, "sorties/limitations_retraite2.csv", append=TRUE, col_names=TRUE)
+write_csv2(limitretraites_impute, "sorties/limitations_retraite_SL.csv", append=TRUE, col_names=TRUE)
 
 
