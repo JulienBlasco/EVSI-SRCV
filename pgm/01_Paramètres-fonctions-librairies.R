@@ -1,5 +1,6 @@
 library(data.table)
 library(tidyverse)
+library(fst)
 
 # calcul d'intervalle de confiance
 errorprop <- function(x, w = rep(1, length(x))) c(prop.test(sum(x*(w!=0), na.rm=T), sum(!is.na(x)&(w!=0)))$conf.int %*% (0:1-1/2))
