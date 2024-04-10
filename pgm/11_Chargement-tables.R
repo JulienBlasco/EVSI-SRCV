@@ -1,13 +1,17 @@
 variables_a_retirer = c("PROPLOCA")
 
+variables_a_selectionner <- c("DIM", "AGE", "CS24", "CS_ANTE", "SEXE", "SITUA", "PB040")
+
 individus <- list(
   `2017` = "INDIVIDUS17_DIFF",
   `2018` = "INDIVIDUS18_DIFF",
   `2016` = "individus16_diff"
 ) %>% 
-  map(~haven::read_dta(paste0("data/", ., ".dta"))) %>% 
+  map(~haven::read_dta(paste0("data/", ., ".dta"),
+                       col_select = any_of(c(variables_a_selectionner, tolower(variables_a_selectionner)))
+  )) %>% 
   map(rename_with, toupper) %>% 
-  map(select, -all_of(variables_a_retirer)) %>% 
+  map(select, -any_of(variables_a_retirer)) %>% 
   bind_rows(.id="AENQ")
 
 individus %>% 
