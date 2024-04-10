@@ -1,32 +1,6 @@
 adultes_filtres <- adultes %>% 
   filter(PCS != "" & !is.na(retraite) & !is.na(limite))
 
-repartition_retraites <- function(donnees, age, ...) {
-  donnees %>% 
-    filter(AGE >= age-2 & AGE <= age+2) %>% 
-    group_by(...) %>% 
-    summarise(
-      AGE = age,
-      non_retraite_non_limite = weighted.mean(!retraite & !limite, PB040),
-      retraite_non_limite = weighted.mean(retraite & !limite, PB040),
-      non_retraite_limite = weighted.mean(!retraite & limite, PB040),
-      retraite_limite = weighted.mean(retraite & limite, PB040),
-    )
-}
-
-repartition_retraites_last_point <- function(donnees, age_cutoff, ...) {
-  donnees %>% 
-    filter(AGE > age_cutoff) %>% 
-    group_by(...) %>% 
-    summarise(
-      AGE = round(Hmisc::wtd.quantile(AGE, PB040, 0.5)),
-      non_retraite_non_limite = weighted.mean(!retraite & !limite, PB040),
-      retraite_non_limite = weighted.mean(retraite & !limite, PB040),
-      non_retraite_limite = weighted.mean(!retraite & limite, PB040),
-      retraite_limite = weighted.mean(retraite & limite, PB040),
-    )
-}
-
 limitretraites <- bind_rows(
   30:75 %>% 
     map_dfr(~repartition_retraites(filter(adultes_filtres, CS %in% 1:2), age=., PCS)) %>% 

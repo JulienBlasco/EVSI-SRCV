@@ -48,3 +48,31 @@ limitations_et_retraite_par <- function(matable, ..., censure=TRUE) {
       mutate(proportion = ifelse(n<=10, NA_real_, proportion)) 
   } else tableau
 }
+
+# Calcul des prévalences de limitations et retraite par âge
+# 
+repartition_retraites <- function(donnees, age, ...) {
+  donnees %>% 
+    filter(AGE >= age-2 & AGE <= age+2) %>% 
+    group_by(...) %>% 
+    summarise(
+      AGE = age,
+      non_retraite_non_limite = weighted.mean(!retraite & !limite, PB040),
+      retraite_non_limite = weighted.mean(retraite & !limite, PB040),
+      non_retraite_limite = weighted.mean(!retraite & limite, PB040),
+      retraite_limite = weighted.mean(retraite & limite, PB040),
+    )
+}
+
+repartition_retraites_last_point <- function(donnees, age_cutoff, ...) {
+  donnees %>% 
+    filter(AGE > age_cutoff) %>% 
+    group_by(...) %>% 
+    summarise(
+      AGE = round(Hmisc::wtd.quantile(AGE, PB040, 0.5)),
+      non_retraite_non_limite = weighted.mean(!retraite & !limite, PB040),
+      retraite_non_limite = weighted.mean(retraite & !limite, PB040),
+      non_retraite_limite = weighted.mean(!retraite & limite, PB040),
+      retraite_limite = weighted.mean(retraite & limite, PB040),
+    )
+}
