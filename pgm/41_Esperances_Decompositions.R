@@ -89,7 +89,8 @@ calcul_esperances <- function(df, elements1, elements2){
     diff_ersi_retraite = decomp_ersi["retraite"],
     diff_ersi_sante = decomp_ersi["sante"],
     diff_ersi_residu = decomp_ersi["residu"],
-    ersif = sum(df$survie_retraite_non_limite_forte[elements]), #ERSI forte
+    ersif = sum(df$survie_retraite_non_limite_forte[elements1]), #ERSI forte
+    diff_ersif = decomp_ersif["total"],
     diff_ersif_survie = decomp_ersif["survie"],
     diff_ersif_retraite = decomp_ersif["retraite"],
     diff_ersif_sante = decomp_ersif["sante"],

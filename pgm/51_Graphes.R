@@ -142,6 +142,32 @@ diff_ersi_long <- esperances %>%
 ) %>%
   ggsave("graphes/diff_ERSI_par_PCS.png",.)
 
+## ECARTS ENTRE SEXES, DECOMPOSITION
+ev_hommes <- esperances_sexe %>% filter(Sexe == "Hommes") %>% select(ev) %>% pull()
+
+diff_sexe_long <- esperances_sexe %>%
+  filter(Sexe == "Femmes") %>%
+  mutate(diff_ev = ev - ev_hommes) %>% mutate(diff_ev_survie = diff_ev) %>%
+  select(matches("^diff"))%>%
+  pivot_longer(.,everything(), names_to = "variable", values_to = "valeur") %>%
+  mutate(
+    type_esperance = sapply(strsplit(variable, "_"), "[", 2),
+    composant = sapply(strsplit(variable, "_"), "[", 3)
+  )
+
+(ggplot()+
+    geom_bar(data = filter(diff_sexe_long, !is.na(composant)), aes(x = factor(type_esperance, levels=c("ev","er","evsi","ersi","evsif","ersif")), y=valeur, fill=factor(composant, levels=c("residu", "survie","sante","retraite"))),
+             position="stack", stat="identity")+
+    labs(x="", y="Années",fill="Écart des femmes \n avec les hommes...")+
+   scale_x_discrete(labels=c("Espérance de vie","Espérance de retraite","Espérance de vie \n sans incapacité","Espérance de retraite \n sans incapacité", "Espérance de vie \n sans incapacité forte", "Espérance de retraite \n sans incapacité forte"))+
+    scale_y_continuous(breaks = seq(-2,6, by=1))+
+  scale_fill_brewer(breaks=c("survie","sante","retraite","residu"),
+                      labels=c("expliqué par la mortalité","expliqué par la santé","expliqué par la retraite","Résidu"),
+                      palette="YlOrBr", direction=-1)+
+    geom_point(data = filter(diff_sexe_long, is.na(composant)), aes(x = type_esperance, y = valeur), color="black", size=2)
+) %>%
+  ggsave("graphes/diff_Sexe.png",.)
+
 
 ## ESPÉRANCE DE VIE, SÉRIE TEMPORELLE
 ev_SL_long <- esperances_SL %>% select(AENQ, Sexe, ev, evsif, evsi)%>%
