@@ -101,14 +101,22 @@ calcul_esperances <- function(df, elements1, elements2){
 # On crée le data.frame esperances
 esperances <- data.frame()
 esperances_sexe <- data.frame()
+esperances_sexe_var85 <- data.frame()
 
 # Pour chaque catégorie, on calcule les espérances et la décomposition des écarts
 elements_hommes <- which((limitations_retraite_survie$PCS == "Ensemble") & (limitations_retraite_survie$Sexe == "Hommes"))
+elements_hommes_var85 <- which((limitations_retraite_survie_var85$PCS == "Ensemble") & (limitations_retraite_survie_var85$Sexe == "Hommes"))
 for(sexe in unique(limitations_retraite_survie$Sexe)){
   elements_sexe <- which((limitations_retraite_survie$PCS == "Ensemble") & (limitations_retraite_survie$Sexe == sexe))
   esperances_sexe <-  calcul_esperances(limitations_retraite_survie, elements_sexe, elements_hommes)%>%
     mutate(Sexe = sexe)%>%
     rbind(esperances_sexe,.)
+  
+  # Variante 85
+  elements_sexe_var85 <- which((limitations_retraite_survie_var85$PCS == "Ensemble") & (limitations_retraite_survie_var85$Sexe == sexe))
+  esperances_sexe_var85 <-  calcul_esperances(limitations_retraite_survie_var85, elements_sexe_var85, elements_hommes_var85)%>%
+    mutate(Sexe = sexe)%>%
+    rbind(esperances_sexe_var85,.)
   
   # On repère d'abord pour les cadres, qu'on prend comme PCS de référence
   elements_cadres <- which((limitations_retraite_survie$PCS == "3 - Cadres") & (limitations_retraite_survie$Sexe == sexe))
@@ -125,6 +133,10 @@ row.names(esperances_sexe) <- NULL
 esperances_sexe <- select(esperances_sexe, Sexe, everything())
 View(esperances_sexe)
 
+row.names(esperances_sexe_var85) <- NULL
+esperances_sexe_var85 <- select(esperances_sexe_var85, Sexe, everything())
+View(esperances_sexe_var85)
+
 
 row.names(esperances) <- NULL
 esperances <- select(esperances, PCS, Sexe, everything())
@@ -132,6 +144,7 @@ esperances <- select(esperances, PCS, Sexe, everything())
 
 View(esperances)
 write_csv2(esperances_sexe, "sorties/esperances_sexe.csv")
+write_csv2(esperances_sexe_var85, "sorties/esperances_sexe_var85.csv")
 write_csv2(esperances, "sorties/esperances.csv")
 
 
