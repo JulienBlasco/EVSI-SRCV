@@ -72,6 +72,7 @@ calcul_esperances <- function(df, elements1, elements2){
     er = sum(df$survie_retraite[elements1]), # ER
     ersi = sum(df$survie_retraite_non_limite[elements1]), #ERSI
     age_depart = sum(1 - df$retraite[elements1]), # Âge conjoncturel de départ 
+    duree_retraite_naive = sum(df$survie[elements1]) - sum(1 - df$retraite[elements1]), # Indicateur usuel de durée de retraite : Espérance de vie - Âge conjoncturel de départ
     diff_evsi = decomp_evsi["total"], # diff d'EVSI avec les cadres
     diff_evsi_survie = decomp_evsi["survie"],
     diff_evsi_sante = decomp_evsi["sante"],

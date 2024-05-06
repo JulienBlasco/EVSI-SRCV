@@ -1,3 +1,20 @@
+# Fonction pour imposer 100% de retraités pour tous les ages >= 75
+censure_retraite <- function(df){
+  filter(df, AGE >= 70) %>%
+    mutate(
+      retraite_limite = retraite_limite + non_retraite_limite,
+      retraite_non_limite = retraite_non_limite + non_retraite_non_limite,
+      retraite_limite_forte = retraite_limite_forte + non_retraite_limite_forte,
+      retraite_non_limite_forte = retraite_non_limite_forte + non_retraite_non_limite_forte,
+      non_retraite_limite = 0,
+      non_retraite_non_limite = 0,
+      non_retraite_limite_forte = 0,
+      non_retraite_non_limite_forte = 0
+    ) %>%
+    rbind(., filter(df, AGE < 70)) %>%
+    return
+}
+
 # On charge les données de limitations*retraite
 limitations_retraite2 <- read_delim("sorties/limitations_retraite2.csv", 
                                      delim = ";", escape_double = FALSE, locale = locale(decimal_mark = ","),  comment = "#", 
@@ -11,6 +28,7 @@ limitations_retraite_forte <- read_delim("sorties/limitations_retraite_forte.csv
                               )
 
 limitations_retraite <- merge(limitations_retraite2, limitations_retraite_forte, by=c("PCS","Sexe","AGE"))%>%
+  censure_retraite %>%
   arrange(PCS, Sexe, AGE)
 
 limitations_retraite_SL <- read_delim("sorties/limitations_retraite_SL.csv", 
@@ -24,6 +42,7 @@ limitations_retraite_SL_forte <- read_delim("sorties/limitations_retraite_SL_for
     retraite_limite_forte = retraite_limite
   )
 limitations_retraite_SL <- merge(limitations_retraite_SL, limitations_retraite_SL_forte, by=c("AENQ","Sexe","AGE"))%>%
+  censure_retraite %>%
   arrange(AENQ, Sexe, AGE)
 
 
@@ -48,7 +67,11 @@ survie <- rbind(survie_hommes, survie_femmes) %>%
                       `Inactifs` = "8 - Inactifs"
   )) %>%
   rename(AGE = age) %>%
-  mutate(survie = survie/100000)
+  mutate(survie = survie/100000)%>%
+  group_by(Sexe,PCS) %>%
+  rename(survie_brut = survie) %>% # On renormalise pour avoir une survie de 100% à 30 ans
+  mutate(survie = survie_brut / survie_brut[AGE == 30])
+
 
 # On charge les données de mortalité par genre en série longue
 # Les données INSEE de mortalité par génération viennent d'ici : https://www.insee.fr/fr/statistiques/6543678?sommaire=6543680
@@ -72,7 +95,11 @@ survie_SL <- rbind(mortalite_SL_femmes, mortalite_SL_hommes) %>%
               group_by(AENQ, Sexe) %>%
               mutate(survie = cumprod(1 - lag(mortalite,default=0)/100000)) %>% # On calcule la survie instantanée
               select(-birth, -mortalite) %>%
-              filter(AGE >= 30, AGE <= 100, AENQ >= 2008, AENQ <= 2019)
+              filter(AGE >= 30, AGE <= 100, AENQ >= 2008, AENQ <= 2019) %>%
+              group_by(Sexe,AENQ) %>%
+              rename(survie_brut = survie) %>% # On renormalise pour avoir une survie de 100% à 30 ans
+              mutate(survie = survie_brut / survie_brut[AGE == 30])
+
 
 completer_colonnes <- function(df, forte = TRUE){
   df <- df %>%
@@ -85,29 +112,15 @@ completer_colonnes <- function(df, forte = TRUE){
       
       survie_non_limite = survie*non_limite,
       survie_retraite = survie*retraite,
-      survie_retraite_non_limite = survie*retraite_non_limite
+      survie_retraite_non_limite = survie*retraite_non_limite,
+      
+      non_limite_forte = non_retraite_non_limite_forte + retraite_non_limite_forte,
+      limite_forte = 1 - non_limite_forte,
+      non_limite_forte_parmi_retraite = ifelse(retraite == 0, 1, retraite_non_limite_forte/retraite),
+      survie_non_limite_forte = survie*non_limite_forte,
+      survie_retraite_non_limite_forte = survie*retraite_non_limite_forte
     )
-  
-  if(forte){
-    df <- df %>%
-      mutate(
-        non_limite_forte = non_retraite_non_limite_forte + retraite_non_limite_forte,
-        limite_forte = 1 - non_limite_forte,
-        non_limite_forte_parmi_retraite = ifelse(retraite == 0, 1, retraite_non_limite_forte/retraite),
-        survie_non_limite_forte = survie*non_limite_forte,
-        survie_retraite_non_limite_forte = survie*retraite_non_limite_forte
-      )
-  } else{
-    df <- df %>%
-      mutate(
-        non_limite_forte = NA,
-        limite_forte = NA,
-        non_limite_forte_parmi_retraite = NA,
-        survie_non_limite_forte = NA,
-        survie_retraite_non_limite_forte = NA
-      )
-  }
-  return(df)
+
 }
 
 limitations_retraite_survie <- merge(limitations_retraite, survie, by=c("PCS","Sexe","AGE"))%>%
@@ -128,9 +141,16 @@ write_csv2(limitations_retraite_survie_SL, "sorties/limitations_retraite_survie_
 ## On charge la "variante 85" limitations*retraite par genre avec lissage différent
 limitations_retraite_var85 <- read_delim("sorties/limitations_retraite_var85.csv", 
                                     delim = ";", escape_double = FALSE, locale = locale(decimal_mark = ","),  comment = "#", 
-                                    trim_ws = TRUE)
+                                    trim_ws = TRUE) %>%
+  mutate(
+    retraite_limite_forte = NA,
+    retraite_non_limite_forte = NA,
+    non_retraite_limite_forte = NA,
+    non_retraite_non_limite_forte = NA
+  ) %>%
+  censure_retraite
+
 limitations_retraite_survie_var85 <- merge(limitations_retraite_var85, filter(survie, PCS=="Ensemble"), by=c("Sexe","AGE","PCS"))%>%
   arrange(Sexe, AGE)%>%
-  completer_colonnes(., forte = FALSE) %>%
+  completer_colonnes %>%
   write_csv2(., "sorties/limitations_retraite_survie_var85.csv")
-

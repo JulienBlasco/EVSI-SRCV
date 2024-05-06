@@ -268,24 +268,3 @@ diff_ersi_SL_long <- esperances_SL %>% select(AENQ, Sexe, diff_ersi_survie, diff
     scale_x_continuous(breaks=seq(2008,2019,by=4))+
     theme_minimal())%>%
   ggsave("graphes/diff_ERSI_SL.png",plot=., width=largeur, height=hauteur, unit="cm")
-
-## ROBUSTESSE : VARIANTE 75 VS 85
-limitations_retraite_survie_var75_var85 <- limitations_retraite_survie %>%
-  filter(PCS == "Ensemble") %>%
-  mutate(var = "var75") %>%
-  bind_rows(
-     limitations_retraite_survie_var85 %>% mutate (var = "var85")
-  )
-
-(ggplot()+
-  geom_line(data = filter(limitations_retraite_survie_var75_var85, AGE >= 65), aes(x = AGE, y = limite, color = var, group = var))+
-  facet_wrap(~Sexe)+
-  labs(
-    x = "Âge",
-    y = "Proportion de personnes avec incapacité",
-    color = ""
-  )+
-  scale_color_brewer(palette="Reds",
-                    labels = c("Seuil à 75 ans", "Seuil à 85 ans"))+
-  theme_minimal()) %>%
-  ggsave("graphes/limitations_var75_var85.png",plot=., width=largeur, height=hauteur, unit="cm")
